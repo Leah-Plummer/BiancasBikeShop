@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using BiancasBikeShop.Models;
+using BiancasBikeShop.Utils;
 
 namespace BiancasBikeShop.Repositories
 {
@@ -17,23 +18,58 @@ namespace BiancasBikeShop.Repositories
 
         public List<Bike> GetAllBikes()
         {
-            var bikes = new List<Bike>();
-            // implement code here... 
-            return bikes;
-        }
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT b.Id, b.Brand, b.Color, b.OwnerId, 
+                               b.BikeTypeId,
 
-        public Bike GetBikeById(int id)
-        {
-            Bike bike = null;
-            //implement code here...
-            return bike;
-        }
+                        o.Id, o.Name
 
-        public int GetBikesInShopCount()
-        {
-            int count = 0;
-            // implement code here... 
-            return count;
+                        FROM Bike b 
+                        LEFT JOIN Owner o on b.OwnerId = o.Id                      
+                        ORDER BY b.Brand
+                    ";
+                    var bikes = new List<Bike>();
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var bike = new Bike()
+                        {
+                            Id = DbUtils.GetInt(reader, "Id"),
+                            Brand = DbUtils.GetString(reader, "Brand"),
+                            Color = DbUtils.GetString(reader, "Color"),
+                            OwnerId = DbUtils.GetInt(reader, "OwnerId"),
+                            Owner = new Owner()
+                            {
+                                Id = DbUtils.GetInt(reader, "OwnerId"),
+                                Name = DbUtils.GetString(reader, "Name"),
+                            }
+                        };
+                        bikes.Add(bike);
+                    }
+                    reader.Close();
+                    // implement code here... 
+                    return bikes;
+                }
+
+                //public Bike GetBikeById(int id)
+                //{
+                //    Bike bike = null;
+                //    //implement code here...
+                //    return bike;
+                //}
+
+                //public int GetBikesInShopCount()
+                //{
+                //    int count = 0;
+                //    // implement code here... 
+                //    return count;
+                //}
+            }
         }
     }
 }
