@@ -19,13 +19,14 @@ namespace BiancasBikeShop.Controllers
             _bikeRepo = bikeRepo;
         }
 
-        // Uncomment this and finish these controller methods...
-        // 
-        // public IActionResult Get()
-        // {
-        //     // add implementation here... 
-        //     return Ok();
-        // }
+        //Uncomment this and finish these controller methods...
+
+        [HttpGet("GetAllBikes")]
+        public IActionResult GetAllBikes()
+        {
+            // add implementation here... 
+            return Ok(_bikeRepo.GetAllBikes());
+        }
 
         // 
         // public IActionResult Get(int id)
